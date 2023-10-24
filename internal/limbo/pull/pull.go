@@ -12,6 +12,7 @@ import (
 )
 
 var remoteUUID string
+var remoteName string
 var destinationDir string
 
 var LimboPullCmd = &cobra.Command{
@@ -29,11 +30,35 @@ func init() {
 		"remote uuid",
 	)
 	LimboPullCmd.PersistentFlags().StringVar(
+		&remoteName,
+		"name",
+		"",
+		"remote name",
+	)
+	LimboPullCmd.PersistentFlags().StringVar(
 		&destinationDir,
 		"dir",
 		"",
 		"destination directory",
 	)
+}
+
+func getUUIDByName(c *common.LimboClient, name string) (string, error) {
+	remotes, err := c.ListRemotes()
+	if err != nil {
+		return "", err
+	}
+	for _, remote := range remotes {
+		remoteMeta, err := c.GetRemoteMeta(remote)
+		if err != nil {
+			return "", err
+		}
+		if remoteMeta.Name == name {
+			return remote, nil
+		}
+	}
+
+	return "", fmt.Errorf("remote named %v is not found", name)
 }
 
 func limboPull() error {
@@ -42,6 +67,16 @@ func limboPull() error {
 		return err
 	}
 	limboClient := common.NewLimboClient(&globalConfig.LimboConfig)
+
+	if remoteName != "" {
+		remoteUUID, err = getUUIDByName(limboClient, remoteName)
+		if err != nil {
+			return err
+		}
+	}
+	if remoteUUID == "" {
+		return fmt.Errorf("please, specify name or uuid")
+	}
 
 	remoteExists, err := limboClient.DoesRemoteExist(remoteUUID)
 	if err != nil {

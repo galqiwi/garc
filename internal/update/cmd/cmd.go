@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"os/exec"
 )
 
 var UnsetSourceErr = errors.New("source is not set, run garc config edit")
@@ -60,6 +61,17 @@ func updateCmd() error {
 	err = file.Chmod(0700)
 	if err != nil {
 		return err
+	}
+
+	_ = file.Close()
+
+	versionProbeResp, err := exec.Command(file.Name(), "version").CombinedOutput()
+	if err != nil {
+		return fmt.Errorf(
+			"downloaded binary is invalid. Version probe responded with %v (%v)",
+			versionProbeResp,
+			err,
+		)
 	}
 
 	err = os.Rename(file.Name(), currentExec)

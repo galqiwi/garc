@@ -7,6 +7,7 @@ import (
 	"github.com/galqiwi/garc/internal/limbo/common"
 	io2 "github.com/galqiwi/garc/internal/utils/io"
 	"github.com/galqiwi/garc/internal/utils/tarball"
+	"github.com/schollz/progressbar/v3"
 	"github.com/spf13/cobra"
 	"golang.org/x/sync/errgroup"
 	"io"
@@ -105,6 +106,11 @@ func limboPush() error {
 	}
 	tarballSize := tarballSizeCounter.BytesWritten()
 
+	bar := progressbar.DefaultBytes(
+		tarballSize,
+		"uploading",
+	)
+
 	tarReader, tarWriter := io.Pipe()
 	g := new(errgroup.Group)
 
@@ -112,11 +118,12 @@ func limboPush() error {
 		defer func() {
 			_ = tarWriter.Close()
 		}()
+		tarWriter := io.MultiWriter(tarWriter, bar)
 		return tarball.CreateTarball("./", tarWriter, toIgnore)
 	})
 
 	g.Go(func() error {
-		return limboClient.CreateRemote(limboMeta, tarReader, tarballSize)
+		return limboClient.CreateRemote(limboMeta, tarReader)
 	})
 
 	return g.Wait()

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/galqiwi/garc/internal/utils/ssh"
 	"github.com/galqiwi/garc/internal/utils/ssh/ssh_utils"
-	"github.com/schollz/progressbar/v3"
 	"golang.org/x/sync/errgroup"
 	"io"
 	"path"
@@ -127,7 +126,7 @@ func (c *LimboClient) createRemoteTarFile(meta *ArchiveMeta, tarballSrc io.Reade
 	return ssh_utils.CreateRemoteFile(sshHost, c.cfg.Username, remoteTarballPath, tarballSrc)
 }
 
-func (c *LimboClient) CreateRemote(meta *ArchiveMeta, tarballSrc io.Reader, tarballSize int64) error {
+func (c *LimboClient) CreateRemote(meta *ArchiveMeta, tarballSrc io.Reader) error {
 	err := c.createRemoteDir(meta)
 	if err != nil {
 		return err
@@ -142,14 +141,9 @@ func (c *LimboClient) CreateRemote(meta *ArchiveMeta, tarballSrc io.Reader, tarb
 
 	tarReader, tarWriter := io.Pipe()
 
-	bar := progressbar.DefaultBytes(
-		tarballSize,
-		"uploading",
-	)
-
 	g := new(errgroup.Group)
 	g.Go(func() error {
-		_, err := io.Copy(io.MultiWriter(bar, tarWriter), tarballSrc)
+		_, err := io.Copy(tarWriter, tarballSrc)
 		if err != nil {
 			return err
 		}

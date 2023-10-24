@@ -2,9 +2,9 @@ package common
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/google/uuid"
 	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -16,19 +16,18 @@ type ArchiveMeta struct {
 	Version          int64
 }
 
-func tryGetHostname() string {
-	output, err := os.Hostname()
+func getDefaultName() string {
+	wd, err := os.Getwd()
 	if err != nil {
-		return "unknown"
+		return ""
 	}
-	return output
+	return filepath.Base(wd)
 }
 
 func NewArchiveMeta(name string) *ArchiveMeta {
-	hostname := tryGetHostname()
 	creationTime := time.Now()
 	if name == "" {
-		name = fmt.Sprintf("%v (%v)", hostname, creationTime.Format("2006-01-02.15:04:05"))
+		name = getDefaultName()
 	}
 	return &ArchiveMeta{
 		Id:               uuid.New(),

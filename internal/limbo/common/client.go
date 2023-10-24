@@ -144,7 +144,7 @@ func (c *LimboClient) CreateRemote(meta *ArchiveMeta, tarballSrc io.Reader, tarb
 
 	bar := progressbar.DefaultBytes(
 		tarballSize,
-		"downloading",
+		"uploading",
 	)
 
 	g := new(errgroup.Group)

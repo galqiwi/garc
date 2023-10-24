@@ -5,6 +5,7 @@ import (
 	"github.com/galqiwi/garc/internal/config"
 	cmd2 "github.com/galqiwi/garc/internal/config/cmd"
 	"github.com/galqiwi/garc/internal/limbo/cmd"
+	cmd5 "github.com/galqiwi/garc/internal/ls/cmd"
 	cmd3 "github.com/galqiwi/garc/internal/update/cmd"
 	cmd4 "github.com/galqiwi/garc/internal/version/cmd"
 	"os"
@@ -22,6 +23,7 @@ func init() {
 	GarcCmd.AddCommand(cmd2.ConfigCmd)
 	GarcCmd.AddCommand(cmd3.UpdateCmd)
 	GarcCmd.AddCommand(cmd4.VersionCmd)
+	GarcCmd.AddCommand(cmd5.LsCmd)
 	config.AddConfigFlag(GarcCmd)
 }
 

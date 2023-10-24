@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
 )
 
 var UnsetSourceErr = errors.New("source is not set, run garc config edit")
@@ -22,6 +23,31 @@ var UpdateCmd = &cobra.Command{
 	},
 }
 
+func downloadExecutable(url, filepath string) error {
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = resp.Body.Close()
+	}()
+
+	file, err := os.Create(filepath)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = file.Close()
+	}()
+
+	_, err = io.Copy(file, resp.Body)
+	if err != nil {
+		return err
+	}
+
+	return file.Chmod(0700)
+}
+
 func updateCmd() error {
 	cfg, err := config.GetConfig()
 	if err != nil {
@@ -30,51 +56,37 @@ func updateCmd() error {
 	if cfg.UpdateConfig.SourceURL == "" {
 		return UnsetSourceErr
 	}
+
 	currentExec, err := misc.GetCurrentExecutablePath()
 	if err != nil {
 		return fmt.Errorf("failed to get current executable path: %e", err)
 	}
-	_ = currentExec
-	res, err := http.Get(cfg.UpdateConfig.SourceURL)
+
+	tmpDir, err := os.MkdirTemp("", "")
 	if err != nil {
 		return err
 	}
 	defer func() {
-		_ = res.Body.Close()
-	}()
-	file, err := os.CreateTemp("", "")
-	if err != nil {
-		return err
-	}
-	defer func() {
-		_ = os.Remove(file.Name())
-	}()
-	defer func() {
-		_ = file.Close()
+		_ = os.RemoveAll(tmpDir)
 	}()
 
-	_, err = io.Copy(file, res.Body)
+	tmpPath := filepath.Join(tmpDir, "executable")
+
+	err = downloadExecutable(cfg.UpdateConfig.SourceURL, tmpPath)
 	if err != nil {
 		return err
 	}
 
-	err = file.Chmod(0700)
-	if err != nil {
-		return err
-	}
-
-	_ = file.Close()
-
-	versionProbeResp, err := exec.Command(file.Name(), "version").CombinedOutput()
+	versionProbeResp, err := exec.Command(tmpPath, "version").CombinedOutput()
 	if err != nil {
 		return fmt.Errorf(
-			"downloaded binary is invalid. Version probe responded with %v (%v)",
-			versionProbeResp,
+			"downloaded binary is invalid. Version probe responded with \n%v\n%v",
+			string(versionProbeResp),
 			err,
 		)
 	}
 
-	err = os.Rename(file.Name(), currentExec)
+	err = os.Rename(tmpPath, currentExec)
 	if err != nil {
 		return err
 	}

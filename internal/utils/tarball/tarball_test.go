@@ -30,7 +30,7 @@ func TestCreateTarball(t *testing.T) {
 
 	buf := &bytes.Buffer{}
 
-	err = CreateTarball(srcPath, buf, []string{})
+	err = CreateTarball(srcPath, "", buf, []string{})
 	require.NoError(t, err)
 
 	err = ExtractTarball(buf, dstPath)

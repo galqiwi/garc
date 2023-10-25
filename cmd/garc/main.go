@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	cmd6 "github.com/galqiwi/garc/internal/compess/cmd"
 	"github.com/galqiwi/garc/internal/config"
 	cmd2 "github.com/galqiwi/garc/internal/config/cmd"
 	"github.com/galqiwi/garc/internal/limbo/cmd"
@@ -24,6 +25,7 @@ func init() {
 	GarcCmd.AddCommand(cmd3.UpdateCmd)
 	GarcCmd.AddCommand(cmd4.VersionCmd)
 	GarcCmd.AddCommand(cmd5.LsCmd)
+	GarcCmd.AddCommand(cmd6.CompressCmd)
 	config.AddConfigFlag(GarcCmd)
 }
 

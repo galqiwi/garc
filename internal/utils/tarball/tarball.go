@@ -16,7 +16,7 @@ func setByList(list []string) map[string]struct{} {
 	return output
 }
 
-func CreateTarball(rootPath string, buf io.Writer, toExclude []string) error {
+func CreateTarball(rootPath string, innerPath string, buf io.Writer, toExclude []string) error {
 	tw := tar.NewWriter(buf)
 	defer tw.Close()
 
@@ -36,12 +36,16 @@ func CreateTarball(rootPath string, buf io.Writer, toExclude []string) error {
 			return fmt.Errorf("error getting relative path for %s: %w", fullFilePath, err)
 		}
 
-		header, err := tar.FileInfoHeader(fileInfo, relFilePath)
+		filePath := relFilePath
+		if innerPath != "" {
+			filePath = filepath.Join(innerPath, filePath)
+		}
+		header, err := tar.FileInfoHeader(fileInfo, filePath)
 		if err != nil {
 			return fmt.Errorf("error creating tar header for %s: %w", relFilePath, err)
 		}
 
-		header.Name = filepath.ToSlash(relFilePath)
+		header.Name = filepath.ToSlash(filePath)
 		if err := tw.WriteHeader(header); err != nil {
 			return fmt.Errorf("error writing tar header for %s: %w", relFilePath, err)
 		}

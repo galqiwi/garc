@@ -100,7 +100,7 @@ func limboPush() error {
 	toIgnore := common.GetLimboIgnore("./")
 
 	tarballSizeCounter := &io2.CountingWriter{}
-	err = tarball.CreateTarball("./", tarballSizeCounter, toIgnore)
+	err = tarball.CreateTarball("./", "", tarballSizeCounter, toIgnore)
 	if err != nil {
 		return err
 	}
@@ -119,7 +119,7 @@ func limboPush() error {
 			_ = tarWriter.Close()
 		}()
 		tarWriter := io.MultiWriter(tarWriter, bar)
-		return tarball.CreateTarball("./", tarWriter, toIgnore)
+		return tarball.CreateTarball("./", "", tarWriter, toIgnore)
 	})
 
 	g.Go(func() error {

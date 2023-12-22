@@ -8,9 +8,13 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"sort"
 )
 
 var displayLongestPath bool
+var sortBySize bool
+var sortByPathLength bool
+var sortByNFiles bool
 
 var LsCmd = &cobra.Command{
 	Use:   "ls",
@@ -36,6 +40,27 @@ func init() {
 		"",
 		false,
 		"display longest path",
+	)
+	LsCmd.PersistentFlags().BoolVarP(
+		&sortBySize,
+		"size",
+		"s",
+		false,
+		"sort by size",
+	)
+	LsCmd.PersistentFlags().BoolVarP(
+		&sortByNFiles,
+		"n-files",
+		"n",
+		false,
+		"sort by # of files",
+	)
+	LsCmd.PersistentFlags().BoolVarP(
+		&sortByPathLength,
+		"path-length",
+		"l",
+		false,
+		"sort by path length",
 	)
 }
 
@@ -129,6 +154,24 @@ func lsCmd() error {
 			return err
 		}
 		output = append(output, outputEntry)
+	}
+
+	if sortByNFiles {
+		sort.Slice(output, func(i, j int) bool {
+			return output[i].NFiles > output[j].NFiles
+		})
+	}
+
+	if sortByPathLength {
+		sort.Slice(output, func(i, j int) bool {
+			return output[i].MaxPathLength > output[j].MaxPathLength
+		})
+	}
+
+	if sortBySize {
+		sort.Slice(output, func(i, j int) bool {
+			return output[i].Size > output[j].Size
+		})
 	}
 
 	headerFmt := color.New(color.FgGreen, color.Underline).SprintfFunc()

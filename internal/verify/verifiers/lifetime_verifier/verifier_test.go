@@ -45,6 +45,7 @@ func checkLifetimes(t *testing.T, maxLifetimeS int64, lifetimes []time.Duration)
 
 	verifier := NewLifetimeVerifier(&LifetimeVerifierConfig{
 		ErrorLifetimeS: maxLifetimeS,
+		WarnLifetimeS:  maxLifetimeS,
 		Dirs:           []string{dirname},
 	})
 

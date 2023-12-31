@@ -8,6 +8,7 @@ import (
 	"github.com/galqiwi/garc/internal/limbo/cmd"
 	cmd5 "github.com/galqiwi/garc/internal/ls/cmd"
 	cmd3 "github.com/galqiwi/garc/internal/update/cmd"
+	cmd7 "github.com/galqiwi/garc/internal/verify/cmd"
 	cmd4 "github.com/galqiwi/garc/internal/version/cmd"
 	"os"
 
@@ -26,13 +27,16 @@ func init() {
 	GarcCmd.AddCommand(cmd4.VersionCmd)
 	GarcCmd.AddCommand(cmd5.LsCmd)
 	GarcCmd.AddCommand(cmd6.CompressCmd)
+	GarcCmd.AddCommand(cmd7.VerifyCmd)
 	config.AddConfigFlag(GarcCmd)
 }
 
 func main() {
 	err := Main()
 	if err != nil {
-		fmt.Println(err)
+		if err.Error() != "" {
+			fmt.Println(err)
+		}
 		os.Exit(1)
 	}
 }

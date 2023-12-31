@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/galqiwi/garc/internal/limbo/common"
 	"github.com/galqiwi/garc/internal/update/config"
+	config2 "github.com/galqiwi/garc/internal/verify/config"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 	"os"
@@ -11,8 +12,9 @@ import (
 )
 
 type Config struct {
-	LimboConfig  common.LimboConfig `yaml:"limbo"`
-	UpdateConfig config.UpdateConfig
+	LimboConfig     common.LimboConfig      `yaml:"limbo"`
+	UpdateConfig    config.UpdateConfig     `yaml:"update"`
+	VerifiersConfig config2.VerifiersConfig `yaml:"verifiers"`
 }
 
 var configPath string

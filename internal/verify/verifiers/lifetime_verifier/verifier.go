@@ -9,9 +9,9 @@ import (
 )
 
 type LifetimeVerifierConfig struct {
-	Dirs           []string `yaml:"dirs"`
-	WarnLifetimeS  int64    `yaml:"warn_lifetime_s"`
-	ErrorLifetimeS int64    `yaml:"max_lifetime_s"`
+	Dirs              []string `yaml:"dirs"`
+	WarnLifetimeDays  int64    `yaml:"warn_lifetime_days"`
+	ErrorLifetimeDays int64    `yaml:"max_lifetime_days"`
 }
 
 func NewLifetimeVerifier(cfg *LifetimeVerifierConfig) verifier.Verifier {
@@ -61,8 +61,8 @@ func (v *lifetimeVerifier) verifyDir(dirPath string) ([]verifier.ErrorMessage, e
 			return nil, err
 		}
 		fileLifetime := time.Now().Sub(entry.ModTime()).Round(time.Second)
-		errLifetimeLimit := time.Second * time.Duration(v.cfg.ErrorLifetimeS)
-		warnLifetimeLimit := time.Second * time.Duration(v.cfg.WarnLifetimeS)
+		errLifetimeLimit := time.Hour * 24 * time.Duration(v.cfg.ErrorLifetimeDays)
+		warnLifetimeLimit := time.Hour * 24 * time.Duration(v.cfg.WarnLifetimeDays)
 		if fileLifetime < warnLifetimeLimit && fileLifetime < errLifetimeLimit {
 			continue
 		}

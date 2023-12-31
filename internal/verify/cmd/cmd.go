@@ -5,6 +5,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var displayNotification bool
+
 var VerifyCmd = &cobra.Command{
 	Use:           "verify",
 	Short:         "verify that system is clean",
@@ -13,6 +15,16 @@ var VerifyCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return verify()
 	},
+}
+
+func init() {
+	VerifyCmd.PersistentFlags().BoolVarP(
+		&displayNotification,
+		"notification",
+		"n",
+		false,
+		"display notification",
+	)
 }
 
 func verify() error {
@@ -26,6 +38,13 @@ func verify() error {
 	}
 
 	displayMessages(messages)
+
+	if displayNotification {
+		err = doDisplayNotification(messages)
+		if err != nil {
+			return err
+		}
+	}
 
 	return fmt.Errorf("")
 }

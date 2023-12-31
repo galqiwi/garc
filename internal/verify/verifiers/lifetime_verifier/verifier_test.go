@@ -27,7 +27,7 @@ func touchFile(path string, modTime time.Time) error {
 	return nil
 }
 
-func checkLifetimes(t *testing.T, maxLifetimeS int64, lifetimes []time.Duration) bool {
+func checkLifetimes(t *testing.T, maxLifetimeDays int64, lifetimes []time.Duration) bool {
 	dirname, err := os.MkdirTemp("", "")
 	require.NoError(t, err)
 	defer func() {
@@ -44,20 +44,20 @@ func checkLifetimes(t *testing.T, maxLifetimeS int64, lifetimes []time.Duration)
 	}
 
 	verifier := NewLifetimeVerifier(&LifetimeVerifierConfig{
-		ErrorLifetimeS: maxLifetimeS,
-		WarnLifetimeS:  maxLifetimeS,
-		Dirs:           []string{dirname},
+		ErrorLifetimeDays: maxLifetimeDays,
+		WarnLifetimeDays:  maxLifetimeDays,
+		Dirs:              []string{dirname},
 	})
 
 	assert.Equal(t, "lifetime_verifier", verifier.Name())
 
-	return len(verifier.Verify()) > 0
+	return len(verifier.Verify()) == 0
 }
 
 func TestName(t *testing.T) {
-	var maxLifetimeS int64 = 3600
-	require.False(t, checkLifetimes(t, maxLifetimeS, nil))
-	require.False(t, checkLifetimes(t, maxLifetimeS, []time.Duration{time.Minute}))
-	require.True(t, checkLifetimes(t, maxLifetimeS, []time.Duration{time.Hour * 2}))
-	require.True(t, checkLifetimes(t, maxLifetimeS, []time.Duration{time.Minute, time.Hour * 2}))
+	var maxLifetimeDays int64 = 1
+	require.True(t, checkLifetimes(t, maxLifetimeDays, nil))
+	require.True(t, checkLifetimes(t, maxLifetimeDays, []time.Duration{time.Minute}))
+	require.False(t, checkLifetimes(t, maxLifetimeDays, []time.Duration{time.Hour * 25}))
+	require.False(t, checkLifetimes(t, maxLifetimeDays, []time.Duration{time.Minute, time.Hour * 25}))
 }

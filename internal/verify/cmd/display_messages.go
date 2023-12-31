@@ -34,7 +34,7 @@ func getNWarns(messages []verifier.ErrorMessage) int {
 
 func displayMessages(messages []verifier.ErrorMessage) {
 	fmt.Printf(
-		"Got %v errors and %v warnings.\n",
+		"You have %v errors and %v warnings.\n",
 		getNErrors(messages),
 		getNWarns(messages),
 	)

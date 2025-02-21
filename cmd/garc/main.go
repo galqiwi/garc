@@ -2,15 +2,17 @@ package main
 
 import (
 	"fmt"
+	"os"
+
 	cmd6 "github.com/galqiwi/garc/internal/compess/cmd"
 	"github.com/galqiwi/garc/internal/config"
 	cmd2 "github.com/galqiwi/garc/internal/config/cmd"
+	cmd8 "github.com/galqiwi/garc/internal/dirhash/cmd"
 	"github.com/galqiwi/garc/internal/limbo/cmd"
 	cmd5 "github.com/galqiwi/garc/internal/ls/cmd"
 	cmd3 "github.com/galqiwi/garc/internal/update/cmd"
 	cmd7 "github.com/galqiwi/garc/internal/verify/cmd"
 	cmd4 "github.com/galqiwi/garc/internal/version/cmd"
-	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -28,6 +30,7 @@ func init() {
 	GarcCmd.AddCommand(cmd5.LsCmd)
 	GarcCmd.AddCommand(cmd6.CompressCmd)
 	GarcCmd.AddCommand(cmd7.VerifyCmd)
+	GarcCmd.AddCommand(cmd8.DirHashCmd)
 	config.AddConfigFlag(GarcCmd)
 }
 

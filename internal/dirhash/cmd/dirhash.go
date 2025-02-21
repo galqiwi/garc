@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/galqiwi/garc/internal/dirhash/diff"
 	"github.com/galqiwi/garc/internal/dirhash/ls"
 	"github.com/spf13/cobra"
 )
@@ -12,4 +13,5 @@ var DirHashCmd = &cobra.Command{
 
 func init() {
 	DirHashCmd.AddCommand(ls.LsCmd)
+	DirHashCmd.AddCommand(diff.DiffCmd)
 }

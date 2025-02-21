@@ -1,4 +1,4 @@
-package cmd
+package ls
 
 import (
 	"bytes"
@@ -38,7 +38,7 @@ func TestSuccessfulCalculation(t *testing.T) {
 	defer func() { os.Stdout = oldStdout }()
 
 	directory = tempDir
-	err := dirhashCmd()
+	err := lsCmd()
 	require.NoError(t, err)
 
 	w.Close()
@@ -74,13 +74,13 @@ func TestSuccessfulCalculation(t *testing.T) {
 
 func TestNonExistentDirectory(t *testing.T) {
 	directory = "non-existent-dir"
-	err := dirhashCmd()
+	err := lsCmd()
 	assert.Error(t, err)
 }
 
 func TestEmptyDirectory(t *testing.T) {
 	directory = ""
-	err := dirhashCmd()
+	err := lsCmd()
 	assert.Error(t, err)
 	assert.Equal(t, "directory is required", err.Error())
 }

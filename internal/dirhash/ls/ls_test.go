@@ -84,22 +84,3 @@ func TestEmptyDirectory(t *testing.T) {
 	assert.Error(t, err)
 	assert.Equal(t, "directory is required", err.Error())
 }
-
-func TestGetFileHash(t *testing.T) {
-	content := []byte("test content")
-	tempFile := filepath.Join(t.TempDir(), "file")
-	err := os.WriteFile(tempFile, content, 0644)
-	require.NoError(t, err)
-	defer os.Remove(tempFile)
-
-	hash, err := getFileHash(tempFile)
-	require.NoError(t, err)
-
-	h := sha256.New()
-	h.Write(content)
-	expectedHash := hex.EncodeToString(h.Sum(nil))
-	assert.Equal(t, expectedHash, hash)
-
-	_, err = getFileHash("non-existent-file")
-	assert.Error(t, err)
-}

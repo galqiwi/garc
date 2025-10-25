@@ -1,9 +1,7 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
-	"github.com/galqiwi/garc/internal/config"
 	"github.com/galqiwi/garc/internal/utils/misc"
 	"github.com/spf13/cobra"
 	"io"
@@ -12,8 +10,6 @@ import (
 	"os/exec"
 	"path/filepath"
 )
-
-var UnsetSourceErr = errors.New("source is not set, run garc config edit")
 
 var UpdateCmd = &cobra.Command{
 	Use:   "update",
@@ -49,13 +45,7 @@ func downloadExecutable(url, filepath string) error {
 }
 
 func updateCmd() error {
-	cfg, err := config.GetConfig()
-	if err != nil {
-		return err
-	}
-	if cfg.UpdateConfig.SourceURL == "" {
-		return UnsetSourceErr
-	}
+	url, err := getLatestReleaseURL("galqiwi", "garc", "garc")
 
 	currentExec, err := misc.GetCurrentExecutablePath()
 	if err != nil {
@@ -72,7 +62,7 @@ func updateCmd() error {
 
 	tmpPath := filepath.Join(tmpDir, "executable")
 
-	err = downloadExecutable(cfg.UpdateConfig.SourceURL, tmpPath)
+	err = downloadExecutable(url, tmpPath)
 	if err != nil {
 		return err
 	}

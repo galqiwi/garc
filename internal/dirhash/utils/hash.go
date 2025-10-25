@@ -7,6 +7,9 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"sync"
+
+	"golang.org/x/sync/errgroup"
 )
 
 type HashMeta map[string]string
@@ -18,18 +21,33 @@ func GetHashMeta(dirpath string) (HashMeta, error) {
 	}
 
 	output := make(HashMeta)
+	var mu sync.Mutex
+
+	g := new(errgroup.Group)
 
 	for _, path := range paths {
-		relPath, err := filepath.Rel(dirpath, path)
-		if err != nil {
-			return nil, err
-		}
+		path := path // capture loop variable
+		g.Go(func() error {
+			relPath, err := filepath.Rel(dirpath, path)
+			if err != nil {
+				return err
+			}
 
-		hash, err := getFileHash(path)
-		if err != nil {
-			return nil, err
-		}
-		output[relPath] = hash
+			hash, err := getFileHash(path)
+			if err != nil {
+				return err
+			}
+
+			mu.Lock()
+			output[relPath] = hash
+			mu.Unlock()
+
+			return nil
+		})
+	}
+
+	if err := g.Wait(); err != nil {
+		return nil, err
 	}
 
 	return output, nil

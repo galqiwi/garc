@@ -12,7 +12,33 @@ import (
 type HashMeta map[string]string
 
 func GetHashMeta(dirpath string) (HashMeta, error) {
+	paths, err := getFilePaths(dirpath)
+	if err != nil {
+		return nil, err
+	}
+
 	output := make(HashMeta)
+
+	for _, path := range paths {
+		relPath, err := filepath.Rel(dirpath, path)
+		if err != nil {
+			return nil, err
+		}
+
+		hash, err := getFileHash(path)
+		if err != nil {
+			return nil, err
+		}
+		output[relPath] = hash
+	}
+
+	return output, nil
+}
+
+// Returns all files in the directory and all its subdirectories
+func getFilePaths(dirpath string) ([]string, error) {
+	output := make([]string, 0)
+
 	err := filepath.Walk(dirpath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -21,17 +47,7 @@ func GetHashMeta(dirpath string) (HashMeta, error) {
 			return nil
 		}
 
-		relPath, err := filepath.Rel(dirpath, path)
-		if err != nil {
-			return err
-		}
-
-		hash, err := getFileHash(path)
-		if err != nil {
-			return err
-		}
-
-		output[relPath] = hash
+		output = append(output, path)
 		return nil
 	})
 

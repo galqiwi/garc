@@ -3,6 +3,7 @@ package diff
 import (
 	"fmt"
 	"os"
+	"runtime"
 
 	"github.com/galqiwi/garc/internal/dirhash/utils"
 	"github.com/spf13/cobra"
@@ -10,6 +11,7 @@ import (
 
 var directory string
 var dirHashFile string
+var concurrency int
 
 var DiffCmd = &cobra.Command{
 	Use:   "diff",
@@ -22,6 +24,7 @@ var DiffCmd = &cobra.Command{
 func init() {
 	DiffCmd.Flags().StringVarP(&directory, "directory", "d", "", "directory to hash")
 	DiffCmd.Flags().StringVarP(&dirHashFile, "dirhash-file", "", "", "file containing the dirhash")
+	DiffCmd.Flags().IntVarP(&concurrency, "concurrency", "j", runtime.NumCPU(), "number of concurrent workers")
 }
 
 func diffCmd() error {
@@ -35,7 +38,7 @@ func diffCmd() error {
 		return err
 	}
 
-	realDirHash, err := utils.GetHashMeta(directory)
+	realDirHash, err := utils.GetHashMeta(directory, concurrency)
 	if err != nil {
 		return err
 	}

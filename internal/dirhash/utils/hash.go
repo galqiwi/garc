@@ -14,7 +14,7 @@ import (
 
 type HashMeta map[string]string
 
-func GetHashMeta(dirpath string) (HashMeta, error) {
+func GetHashMeta(dirpath string, concurrency int) (HashMeta, error) {
 	paths, err := getFilePaths(dirpath)
 	if err != nil {
 		return nil, err
@@ -24,9 +24,10 @@ func GetHashMeta(dirpath string) (HashMeta, error) {
 	var mu sync.Mutex
 
 	g := new(errgroup.Group)
+	g.SetLimit(concurrency)
 
 	for _, path := range paths {
-		path := path // capture loop variable
+		path := path
 		g.Go(func() error {
 			relPath, err := filepath.Rel(dirpath, path)
 			if err != nil {

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"runtime"
 
 	"github.com/galqiwi/garc/internal/dirhash/utils"
 	"github.com/spf13/cobra"
@@ -11,6 +12,7 @@ import (
 
 var directory string
 var output string
+var concurrency int
 
 var LsCmd = &cobra.Command{
 	Use:   "ls",
@@ -35,6 +37,13 @@ func init() {
 		"",
 		"output file (if not specified, the output will be printed to stdout)",
 	)
+	LsCmd.Flags().IntVarP(
+		&concurrency,
+		"concurrency",
+		"j",
+		runtime.NumCPU(),
+		"number of concurrent workers",
+	)
 }
 
 func lsCmd() error {
@@ -42,7 +51,7 @@ func lsCmd() error {
 		return errors.New("directory is required")
 	}
 
-	hashByPath, err := utils.GetHashMeta(directory)
+	hashByPath, err := utils.GetHashMeta(directory, concurrency)
 	if err != nil {
 		return fmt.Errorf("error getting hash meta: %w", err)
 	}
